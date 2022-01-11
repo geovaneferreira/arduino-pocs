@@ -10,7 +10,14 @@
 #define SS      18   // GPIO18 -- SX1278's CS
 #define RST     14   // GPIO14 -- SX1278's RESET
 #define DI0     26   // GPIO26 -- SX1278's IRQ(Interrupt Request)
-#define BAND    868E6
+#define BAND    903E6
+#define spreadingFactor 11//7
+#define signalBandwidth 500E3//125E3
+#define codingRateDenominator 1//5
+#define preambleLength 8
+#define syncWord 0x12
+#define crc 1
+#define gain 20
 
 SSD1306 display(0x3c, 4, 15);
 String rssi = "RSSI --";
@@ -53,6 +60,16 @@ void setup() {
   Serial.println("LoRa Receiver Callback");
   SPI.begin(SCK,MISO,MOSI,SS);
   LoRa.setPins(SS,RST,DI0);  
+  LoRa.setSpreadingFactor(spreadingFactor);
+  LoRa.setSignalBandwidth(signalBandwidth);
+  LoRa.setCodingRate4(codingRateDenominator);
+  LoRa.setSyncWord(syncWord);
+  LoRa.setGain(gain);
+  #if crc == 1
+    LoRa.enableCrc();
+  #else 
+    LoRa.disableCrc();
+  #endif  
   if (!LoRa.begin(BAND)) {
     Serial.println("Starting LoRa failed!");
     while (1);
