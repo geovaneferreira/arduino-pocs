@@ -13,8 +13,8 @@
 #define BAND    903E6//868E6
 #define spreadingFactor 11//7
 #define signalBandwidth 500E3//125E3
-#define codingRateDenominator 1//5
-#define preambleLength 8
+#define codingRateDenominator 5
+#define preambleLength 25
 #define syncWord 0x12
 #define crc 1
 #define gain 20
@@ -47,6 +47,11 @@ void setup() {
   
   SPI.begin(SCK,MISO,MOSI,SS);
   LoRa.setPins(SS,RST,DI0);
+  if (!LoRa.begin(BAND)) {
+    Serial.println("Starting LoRa failed!");
+    while (1);
+  }
+  LoRa.setFrequency(BAND);
   LoRa.setSpreadingFactor(spreadingFactor);
   LoRa.setSignalBandwidth(signalBandwidth);
   LoRa.setCodingRate4(codingRateDenominator);
@@ -57,10 +62,7 @@ void setup() {
   #else 
     LoRa.disableCrc();
   #endif  
-  if (!LoRa.begin(BAND)) {
-    Serial.println("Starting LoRa failed!");
-    while (1);
-  }
+  
   //LoRa.onReceive(cbk);
 //  LoRa.receive();
   Serial.println("init ok");

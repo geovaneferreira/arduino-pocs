@@ -13,8 +13,8 @@
 #define BAND    903E6
 #define spreadingFactor 11//7
 #define signalBandwidth 500E3//125E3
-#define codingRateDenominator 1//5
-#define preambleLength 8
+#define codingRateDenominator 5
+#define preambleLength 25
 #define syncWord 0x12
 #define crc 1
 #define gain 20
@@ -43,8 +43,17 @@ void loraData(){
 void cbk(int packetSize) {
   packet ="";
   packSize = String(packetSize,DEC);
-  for (int i = 0; i < packetSize; i++) { packet += (char) LoRa.read(); }
   rssi = "RSSI " + String(LoRa.packetRssi(), DEC) ;
+  Serial.println(rssi);
+  String recebidosize = "Recebido " + String(packetSize) + " bytes";
+  Serial.println(recebidosize);
+  for (int i = 0; i < packetSize; i++) { 
+    uint8_t crec = LoRa.read(); 
+    packet += (char) crec;
+    Serial.print(crec, HEX);
+  }
+
+  Serial.println();
   loraData();
 }
 
@@ -60,6 +69,13 @@ void setup() {
   Serial.println("LoRa Receiver Callback");
   SPI.begin(SCK,MISO,MOSI,SS);
   LoRa.setPins(SS,RST,DI0);  
+  
+  if (!LoRa.begin(BAND)) {
+    Serial.println("Starting LoRa failed!");
+    while (1);
+  }
+
+  LoRa.setFrequency(BAND);
   LoRa.setSpreadingFactor(spreadingFactor);
   LoRa.setSignalBandwidth(signalBandwidth);
   LoRa.setCodingRate4(codingRateDenominator);
@@ -70,10 +86,7 @@ void setup() {
   #else 
     LoRa.disableCrc();
   #endif  
-  if (!LoRa.begin(BAND)) {
-    Serial.println("Starting LoRa failed!");
-    while (1);
-  }
+  
   Serial.println("init ok");
   display.init();
   display.flipScreenVertically();  
