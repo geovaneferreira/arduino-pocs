@@ -50,7 +50,9 @@ void cbk(int packetSize) {
   for (int i = 0; i < packetSize; i++) { 
     uint8_t crec = LoRa.read(); 
     packet += (char) crec;
+    Serial.print("0x");
     Serial.print(crec, HEX);
+    Serial.print(",");
   }
 
   Serial.println();
